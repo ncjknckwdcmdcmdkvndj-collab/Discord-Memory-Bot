@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
-set -e
+set -euo pipefail
+
 # Build if tsconfig exists
 if [ -f tsconfig.json ]; then
+  echo "Building TypeScript..."
   npm run build --if-present
 fi
-# Start bot (assumes "start" script is configured)
-npm run start
+
+# Start bot (assumes "start" script is configured in package.json)
+exec npm run start
