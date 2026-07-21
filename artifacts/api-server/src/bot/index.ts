@@ -7,6 +7,7 @@ import {
 } from "discord.js";
 import { commandMap, commands } from "./commands";
 import { handleInteraction } from "./interactions";
+import { getGuildRanks } from "./utils/ranks";
 import { logger } from "../lib/logger";
 
 export function createBot(): Client {
@@ -29,6 +30,15 @@ export function createBot(): Client {
   // ── Ready ────────────────────────────────────────────────────────────────
   client.once("ready", async (c) => {
     logger.info(`Discord bot logged in as ${c.user.tag}`);
+
+    const inviteUrl =
+      `https://discord.com/api/oauth2/authorize` +
+      `?client_id=${c.user.id}` +
+      `&permissions=275951575040` +
+      `&scope=bot%20applications.commands`;
+    logger.info(`Bot invite URL: ${inviteUrl}`);
+    // Store on client for the API route
+    (c as typeof c & { inviteUrl: string }).inviteUrl = inviteUrl;
 
     // Register slash commands globally
     const rest = new REST().setToken(token);
@@ -54,8 +64,7 @@ export function createBot(): Client {
         const guildId = interaction.guildId;
         if (!guildId) return interaction.respond([]);
 
-        const { getGuildRanks } = await import("./utils/ranks");
-        const ranks = await getGuildRanks(guildId).catch(() => []);
+        const ranks = await getGuildRanks(guildId).catch((): import("@workspace/db").RankConfig[] => []);
         const query = String(focused.value).toLowerCase();
 
         const choices = ranks

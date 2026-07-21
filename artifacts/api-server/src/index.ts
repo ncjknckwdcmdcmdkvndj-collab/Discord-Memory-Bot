@@ -1,6 +1,7 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 import { createBot } from "./bot";
+import { createInviteRouter } from "./routes/invite";
 
 const rawPort = process.env["PORT"];
 
@@ -16,8 +17,9 @@ if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
 }
 
-// Start Discord bot
-createBot();
+// Start Discord bot and attach invite route
+const botClient = createBot();
+app.use("/api", createInviteRouter(botClient));
 
 // Start HTTP server
 app.listen(port, (err) => {
