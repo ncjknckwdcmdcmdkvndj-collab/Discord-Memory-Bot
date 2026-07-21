@@ -1,0 +1,162 @@
+# Mission & Progression Discord Bot
+
+A fully customizable mission system designed to keep your community active, organized, and rewarded.
+
+## Mission Creation
+
+Server Owners and Administrators can create missions directly from Discord using simple slash commands.
+
+**Example:**
+`/mission add <title> <description> <finer_details> <highest_rank_allowed (optional)> <lowest_rank_required>`
+
+### Mission Fields
+
+* **Title** – The mission's name.
+* **Description** – A short summary displayed on the Mission Board.
+* **Finer Details** – Extended instructions, objectives, rules, examples, or additional information sent to the player after claiming the mission.
+* **Highest Rank Allowed (Optional)** – Restricts claiming to players at or below a specified rank. If left blank, there is no maximum rank restriction.
+* **Lowest Rank Required** – The minimum progression rank required before a player may claim the mission.
+
+Each mission is automatically posted to the designated **Mission Board** channel, where members can browse available objectives.
+
+---
+
+## Claiming Missions
+
+Members can claim any available mission by pressing the **Accept Mission** button.
+
+Once claimed:
+
+* The mission is marked as **Claimed** on the Mission Board so others know it is currently being worked on.
+* The bot sends the member a direct message containing the mission title, description, finer details, and any additional instructions.
+* The bot begins tracking the mission session from the moment it is accepted.
+
+If a member decides they no longer want to complete the mission, they may **Unaccept** it at any time. Doing so applies a small penalty of **-1 completed mission point**, discouraging players from claiming missions they don't intend to finish.
+
+---
+
+## Mission Submission
+
+When a member finishes their mission, they simply reply to the bot's direct message with their proof, screenshots, videos, or any other required evidence.
+
+After submitting their proof, they press the **Submit Mission** button.
+
+The bot automatically compiles the entire mission history, including:
+
+* Mission accepted timestamp
+* Mission information
+* Player responses
+* Proof submitted
+* Relevant conversation logs
+
+This complete submission is then forwarded to a private **Mission Review** channel.
+
+---
+
+## Staff Review
+
+Owners and Administrators review each submission inside the private review channel.
+
+With a single button press they can either:
+
+* ✅ **Accept** — The mission is successfully completed and rewards are granted.
+* ❌ **Deny** — The submission is rejected and can optionally include a reason for the denial.
+
+This creates a fast, organized moderation workflow while keeping mission discussions private.
+
+---
+
+## Rank Progression
+
+Players earn permanent progression based on the number of **approved** missions they complete.
+
+Example progression:
+
+* **1** Completed Mission → Soldier
+* **5** Completed Missions → Geared Soldier
+* **10** Completed Missions → General
+* **20** Completed Missions → Geared General
+* **50** Completed Missions → Incomplete Yazzer
+* **100** Completed Missions → TRUE YAZZER
+
+Roles are awarded automatically as players reach each milestone.
+
+---
+
+## Statistics System
+
+Every member has a personal statistics profile that tracks their progress across the server.
+
+Tracked statistics include:
+
+* Total completed missions
+* Total accepted missions
+* Total denied missions
+* Missions currently in progress
+* Missions abandoned
+* Mission completion rate
+* Current progression rank
+* Highest rank achieved
+* Date of first completed mission
+* Date of most recent completed mission
+
+### Rank-Based Mission Statistics
+
+The bot also tracks how many completed missions a player has finished for each mission tier based on the mission's **Lowest Rank Required**.
+
+For example:
+
+* Soldier missions completed
+* Geared Soldier missions completed
+* General missions completed
+* Geared General missions completed
+* Incomplete Yazzer missions completed
+* TRUE YAZZER missions completed
+
+This allows players to see not only how many missions they've completed overall, but how many high-level missions they've conquered.
+
+---
+
+## Leaderboards
+
+The bot includes server-wide leaderboards to encourage competition.
+
+Leaderboard categories may include:
+
+* Most Completed Missions
+* Most High-Rank Missions Completed
+* Highest Completion Rate
+* Most Missions Completed This Week
+* Most Missions Completed This Month
+* Longest Completion Streak
+* Fastest Average Mission Completion Time
+* Highest Current Progression Rank
+
+Leaderboards update automatically as missions are accepted and approved.
+
+---
+
+## Features
+
+* Fully customizable missions
+* Easy slash command mission creation
+* Custom mission rank requirements
+* Dedicated Mission Board
+* One-click mission claiming
+* Automatic mission tracking
+* Direct Message mission management
+* Proof submission through DMs
+* Automatic submission logging
+* Private staff review queue
+* Accept/Deny approval buttons
+* Automatic role progression
+* Configurable milestone rewards
+* Mission statistics system
+* Rank-based mission statistics
+* Server-wide leaderboards
+* Prevents duplicate mission claims
+* Mission history and audit logs
+* Staff may manually adjust a member's completed mission points
+* Clean and user-friendly workflow for both players and staff
+
+The bot is built to provide a complete questing and progression system for Discord communities, encouraging member participation while giving staff an efficient way to verify and reward completed missions while providing long-term progression, detailed statistics, and competitive leaderboards.
