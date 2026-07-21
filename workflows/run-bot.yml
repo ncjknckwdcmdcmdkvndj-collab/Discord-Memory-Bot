@@ -15,7 +15,7 @@ jobs:
         with:
           node-version: 18
 
-      - name: Cache node modules
+      - name: Cache npm
         uses: actions/cache@v4
         with:
           path: ~/.npm
@@ -26,11 +26,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build
+      - name: Build (if present)
         run: npm run build --if-present
 
       - name: Run bot
-        # This will run the bot in the foreground for the duration of the job.
         run: npm run start
         env:
           DISCORD_TOKEN: ${{ secrets.DISCORD_TOKEN }}
