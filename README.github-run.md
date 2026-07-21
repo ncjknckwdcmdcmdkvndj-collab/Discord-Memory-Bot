@@ -1,27 +1,80 @@
-# Run this bot via GitHub Actions
+# Running the Discord Bot on GitHub Actions
 
-This branch adds a GitHub Actions workflow and helper files to run the Discord bot from an Actions runner.
+The workflow file at `.github/workflows/run-bot.yml` lets you run the bot
+directly from GitHub — no server needed.
 
-Files added on branch `gh-run-bot`:
-- .github/workflows/run-bot.yml — manual workflow (Workflow → Run workflow) that checks out the repo, installs dependencies, builds (if TypeScript), and runs `npm run start`.
-- scripts/start-bot.sh — convenience script to build (if needed) and start the bot.
-- Dockerfile — optional Docker image definition for running the bot elsewhere.
+---
 
-Required repository secret for the Discord bot token
-- DISCORD_TOKEN — set this secret to your bot's token in the repository Settings → Secrets → Actions. The workflow and start script expect the token to be available as the secret name `DISCORD_TOKEN`.
+## Quick start
 
-Optional secrets you may need (add these if your bot uses them):
-- OPENAI_API_KEY
-- DATABASE_URL
+### 1 — Add repository secrets
 
-How to run
-1. Add the required secrets (at minimum: `DISCORD_TOKEN`) at: https://github.com/ncjknckwdcmdcmdkvndj-collab/Discord-Memory-Bot/settings/secrets/actions
-2. Go to the repository's Actions tab, select the "Run Discord Bot (manual)" workflow, and click "Run workflow".
+Go to **Settings → Secrets and variables → Actions → New repository secret**
+and add:
 
-Notes and limitations
-- GitHub-hosted Actions runners are ephemeral. The workflow will run as long as the job is active (up to the runner time limit). This is suitable for testing and short-lived runs, but not for a 24/7 bot. For continuous operation, deploy to a VPS, Render, Railway, Heroku, or use a self-hosted runner.
-- The workflow expects your project to have appropriate npm scripts in `package.json`:
-  - `build` (optional) — compiles TypeScript, e.g. `tsc`.
-  - `start` (required) — starts the bot, e.g. `node ./dist/index.js` or `ts-node src/index.ts`.
+| Secret name        | What it is                                      |
+|--------------------|--------------------------------------------------|
+| `DISCORD_BOT_TOKEN`| Your bot's token (from Discord Developer Portal) |
+| `SESSION_SECRET`   | Any long random string (e.g. `openssl rand -hex 32`) |
+| `DATABASE_URL`     | PostgreSQL connection string for your database   |
 
-If you want, I can also update `package.json` scripts in this branch to add `build`/`start` defaults if they are missing — tell me and I will update them.
+For `DATABASE_URL` you need a database that is reachable from GitHub's runners.
+Free options: [Neon](https://neon.tech), [Supabase](https://supabase.com),
+[Railway](https://railway.app).  Format:
+```
+postgresql://user:password@host:5432/dbname
+```
+
+### 2 — Push schema to your database
+
+Run this once from your local machine (with `DATABASE_URL` set in your
+environment) to create the tables:
+
+```bash
+pnpm --filter @workspace/db run push
+```
+
+### 3 — Trigger the workflow
+
+Go to the **Actions** tab → **Run Discord Bot** → **Run workflow**.
+
+The bot will stay running for up to ~6 hours (GitHub's limit for hosted
+runners).  For 24/7 uptime see the options below.
+
+---
+
+## Automatic triggers
+
+The workflow also starts automatically on every push to `main` or `master`
+that touches the bot source (`artifacts/api-server/**`, `lib/**`).
+Remove that trigger from `.github/workflows/run-bot.yml` if you only want
+manual runs.
+
+---
+
+## 24/7 uptime options
+
+GitHub-hosted runners are ephemeral and cap out at 6 hours, so they are fine
+for testing but not production.
+
+| Option | Notes |
+|--------|-------|
+| **Self-hosted runner** | Add your own always-on machine as a GitHub runner; the same workflow file works unchanged. |
+| **Railway / Render / Fly.io** | Push the repo; point the start command at `scripts/start-bot.sh`. |
+| **Docker** | Build the included `Dockerfile` and run the image anywhere. |
+
+---
+
+## Docker
+
+```bash
+# Build
+docker build -t discord-bot .
+
+# Run
+docker run -d \
+  -e DISCORD_BOT_TOKEN=your_token \
+  -e SESSION_SECRET=your_secret \
+  -e DATABASE_URL=postgresql://... \
+  discord-bot
+```
