@@ -1,17 +1,34 @@
-# Simple Dockerfile to run the bot in a container
+# Multi-stage build for the Discord bot (pnpm monorepo)
+FROM node:20-slim AS builder
 
-FROM node:18-slim
+# Enable corepack so pnpm is available without a separate install step
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
 WORKDIR /app
 
-# Install dependencies first (takes advantage of Docker layer caching)
-COPY package*.json ./
-RUN npm ci --only=production
+# Copy manifests first so Docker caches the install layer
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY lib/db/package.json                      lib/db/
+COPY lib/api-zod/package.json                 lib/api-zod/
+COPY artifacts/api-server/package.json        artifacts/api-server/
+COPY scripts/package.json                     scripts/
 
-# Copy rest of the source
+RUN pnpm install --frozen-lockfile
+
+# Copy source and build
 COPY . .
+RUN pnpm --filter @workspace/api-server run build
 
-# Build (if project uses TypeScript)
-RUN if [ -f tsconfig.json ]; then npm run build --if-present; fi
+# ── Runtime image ─────────────────────────────────────────────────────────────
+FROM node:20-slim
 
-# Default command
-CMD ["npm", "run", "start"]
+WORKDIR /app
+
+# Copy only what's needed to run
+COPY --from=builder /app/artifacts/api-server/dist ./artifacts/api-server/dist
+COPY --from=builder /app/node_modules             ./node_modules
+
+ENV NODE_ENV=production
+ENV PORT=3000
+
+CMD ["node", "--enable-source-maps", "./artifacts/api-server/dist/index.mjs"]
