@@ -44,6 +44,35 @@ export function createBot(): Client {
 
   // ── Slash commands ───────────────────────────────────────────────────────
   client.on("interactionCreate", async (interaction) => {
+    // Autocomplete: rank options on /mission add
+    if (interaction.isAutocomplete()) {
+      const focused = interaction.options.getFocused(true);
+      if (
+        interaction.commandName === "mission" &&
+        (focused.name === "min_rank" || focused.name === "max_rank")
+      ) {
+        const guildId = interaction.guildId;
+        if (!guildId) return interaction.respond([]);
+
+        const { getGuildRanks } = await import("./utils/ranks");
+        const ranks = await getGuildRanks(guildId).catch(() => []);
+        const query = String(focused.value).toLowerCase();
+
+        const choices = ranks
+          .filter((r) =>
+            query === "" || r.rankName.toLowerCase().includes(query),
+          )
+          .slice(0, 25)
+          .map((r) => ({
+            name: `${r.rankName} (${r.missionsRequired} missions required)`,
+            value: r.rankOrder,
+          }));
+
+        return interaction.respond(choices);
+      }
+      return interaction.respond([]);
+    }
+
     if (interaction.isChatInputCommand()) {
       const command = commandMap.get(interaction.commandName);
       if (!command) return;

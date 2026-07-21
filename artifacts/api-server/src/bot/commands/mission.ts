@@ -43,14 +43,15 @@ export const data = new SlashCommandBuilder()
       .addIntegerOption((o) =>
         o
           .setName("min_rank")
-          .setDescription("Minimum rank order required to claim")
-          .setRequired(true)
+          .setDescription("Minimum rank required to claim (leave blank = anyone can claim)")
+          .setAutocomplete(true)
           .setMinValue(0),
       )
       .addIntegerOption((o) =>
         o
           .setName("max_rank")
-          .setDescription("Maximum rank order allowed to claim (leave blank = no limit)")
+          .setDescription("Maximum rank allowed to claim (leave blank = no upper limit)")
+          .setAutocomplete(true)
           .setMinValue(0),
       ),
   )
@@ -81,7 +82,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     const title = interaction.options.getString("title", true);
     const description = interaction.options.getString("description", true);
     const finerDetails = interaction.options.getString("details", true);
-    const minRankOrder = interaction.options.getInteger("min_rank", true);
+    const minRankOrder = interaction.options.getInteger("min_rank") ?? 0;
     const maxRankOrder = interaction.options.getInteger("max_rank") ?? null;
 
     const [guild] = await db
@@ -100,7 +101,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
     // Validate rank orders
     const ranks = await getGuildRanks(guildId);
     const minRank = ranks.find((r) => r.rankOrder === minRankOrder);
-    if (ranks.length > 0 && !minRank) {
+    if (minRankOrder > 0 && ranks.length > 0 && !minRank) {
       return interaction.reply({
         content: `❌ No rank found with order **${minRankOrder}**. Use \`/rank list\` to see valid orders.`,
         ephemeral: true,
