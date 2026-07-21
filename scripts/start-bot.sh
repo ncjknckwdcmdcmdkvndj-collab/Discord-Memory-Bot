@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
+# Build and start the Discord bot from the monorepo root.
 set -euo pipefail
 
-# Build if tsconfig exists
-if [ -f tsconfig.json ]; then
-  echo "Building TypeScript..."
-  npm run build --if-present
-fi
+echo "Building @workspace/api-server..."
+pnpm --filter @workspace/api-server run build
 
-# Start bot (assumes "start" script is configured in package.json)
-exec npm run start
+echo "Starting bot..."
+exec node --enable-source-maps ./artifacts/api-server/dist/index.mjs
